@@ -1,0 +1,9 @@
+﻿Doxmand Normal ultrahangos vadriasztó	1	0	https://doxmand.hu/wp-content/uploads/2019/12/Normal.jpg
+Doxmand Dual ultrahangos vadriasztó	1	0	https://doxmand.hu/wp-content/uploads/2021/06/Dual.jpg
+Doxmand VR4 ultrahangos vadriasztó	4	0	https://doxmand.hu/wp-content/uploads/2021/06/Vr4.jpg
+Doxmand VR8 ultrahangos vadriasztó	8	0	https://doxmand.hu/wp-content/uploads/2020/01/VR8.jpg
+Doxmand Nomus ultrahangos rágcsálóriasztó	1	1	https://doxmand.hu/wp-content/uploads/2021/06/Nomus.jpg
+Doxmand Nomus Plus ultrahangos rágcsálóriasztó	1	1	https://doxmand.hu/wp-content/uploads/2021/06/Nomus-Plus.jpg
+Doxmand Nomus 360 ultrahangos rágcsálóriasztó	4	1	https://doxmand.hu/wp-content/uploads/2021/06/Nomus-Plus-360psd.jpg
+Doxmand SR2 madárriasztó	1	2	https://doxmand.hu/wp-content/uploads/2021/06/SR2-1.jpg
+Doxmand SR4 madárriasztó	4	2	https://doxmand.hu/wp-content/uploads/2021/06/SR4-1.jpg

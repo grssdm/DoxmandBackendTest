@@ -1,4 +1,5 @@
 ﻿using DoxmandAPI.Models;
+using DoxmandBackend.DTOs;
 using DoxmandBackend.Models;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,9 @@ namespace DoxmandBackend.Repos
         IEnumerable<Plan> GetAllPlans();
         Plan GetPlanById(string planId);
         User AddPlanToUser(User user, Plan plan);
-        Plan AddPlanToFirebase(Dictionary<string, Coord> placedProducts);
+        Plan AddPlanToFirebase(PlanDTO planDto);
         Plan EditPlan(Plan plan);
         void DeletePlanById(string planId);
+        string FindPlanNameByProduct(string productId);
     }
 }

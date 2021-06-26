@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using DoxmandAPI.DTOs;
 using DoxmandAPI.Models;
+using DoxmandBackend.DTOs;
 
 namespace DoxmandAPI.Repos
 {

@@ -4,11 +4,11 @@ namespace DoxmandAPI.Models
 {
     public class User
     {
-        public User(string email, string password, string name)
+        public User(string email, string password, string username)
         {
             Email = email;
             Password = password;
-            Name = name;
+            Username = username;
             Products = new List<Product>();
             Plans = new List<Plan>();
         }
@@ -16,7 +16,7 @@ namespace DoxmandAPI.Models
         public string User_ID { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string Name { get; set; }
+        public string Username { get; set; }
         public List<Product> Products { get; set; }
         public List<Plan> Plans { get; set; }
     }

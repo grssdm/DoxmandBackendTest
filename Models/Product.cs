@@ -2,13 +2,13 @@
 {
     public class Product
     {
-        public Product(string name, int speakerNumber, AlarmType type, string serialNumber, string pictureUrl)
+        public Product(string name, int speakerNumber, AlarmType type, string pictureUrl, string savedName)
         {
             Name = name;
             SpeakerNumber = speakerNumber;
             Type = type;
-            SerialNumber = serialNumber;
             PictureUrl = pictureUrl;
+            SavedName = savedName;
         }
 
         public enum AlarmType
@@ -22,7 +22,7 @@
         public string Name { get; set; }
         public int SpeakerNumber { get; set; }
         public AlarmType Type { get; set; }
-        public string SerialNumber { get; set; }
         public string PictureUrl { get; set; }
+        public string SavedName { get; set; }
     }
 }

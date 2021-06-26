@@ -6,6 +6,7 @@ using DoxmandAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DoxmandBackend.Models;
+using DoxmandBackend.DTOs;
 
 namespace DoxmandAPI.Controllers
 {
@@ -60,7 +61,7 @@ namespace DoxmandAPI.Controllers
         public ActionResult<User> AddNewUser(UserDTO userDto)
         {
             // Ha valamelyik attribútum üres vagy null, akkor 400-as hiba
-            if (string.IsNullOrEmpty(userDto.Email) || string.IsNullOrEmpty(userDto.Password) || string.IsNullOrEmpty(userDto.Name))
+            if (string.IsNullOrEmpty(userDto.Email) || string.IsNullOrEmpty(userDto.Password) || string.IsNullOrEmpty(userDto.Username))
             {
                 return BadRequest("Some parameters are missing");
             }
@@ -92,11 +93,26 @@ namespace DoxmandAPI.Controllers
             }
         }
 
+        [HttpGet("{id}/products")]
+        public ActionResult<IEnumerable<Product>> GetProductsByUser(string id)
+        {
+            // Felhasználó megkeresése
+            var user = _repo.GetUserById(id);
+
+            // Ha nincs felhasználó a megadott ID-val, akkor 404-es hiba
+            if (user == null)
+            {
+                return NotFound($"There is no User with ID {id}");
+            }
+
+            return Ok(user.Products);
+        }
+
         [HttpPut("{id}/products/add")]
-        public ActionResult<User> AddProductToUser(string id, string serialNumber)
+        public ActionResult<User> AddProductToUser(string id, string productId)
         {
             // Ha a gyártási szám üres vagy null, akkor 400-as hiba
-            if (string.IsNullOrEmpty(serialNumber))
+            if (string.IsNullOrEmpty(productId))
             {
                 return BadRequest("Some parameters are missing");
             }
@@ -126,28 +142,28 @@ namespace DoxmandAPI.Controllers
                 foreach (var product in products)
                 {
                     // Megvizsgáljuk a gyártási számot
-                    if (product.SerialNumber.Equals(serialNumber))
+                    if (product.Product_ID.Equals(productId))
                     {
                         // Végig iterálunk a felhasználó termékein
                         foreach (var userProduct in user.Products)
                         {
                             // Ha megtaláljuk közöttük a megadott gyártási számmal
                             // rendelkező terméket, akkor 400-as hiba
-                            if (userProduct.SerialNumber.Equals(serialNumber))
+                            if (userProduct.Product_ID.Equals(productId))
                             {
-                                return BadRequest($"User with ID {id} already contains product with Serial Number {serialNumber}");
+                                return BadRequest($"User with ID {id} already contains product with ID {productId}");
                             }
                         }
 
                         // Ellenkező esetben hozzáadjuk az adott felhasználóhoz
                         _repo.AddProductToUser(user, product);
                         // És 200-as státuszkóddal térünk vissza
-                        return Ok($"Product with Serial Number {serialNumber} has been successfully added to User with ID {id}");
+                        return Ok($"Product with ID {productId} has been successfully added to User with ID {id}");
                     }
                 }
 
                 // Ha nem találtuk meg a terméket a megadott gyártási számmal, akkor 404-es hiba
-                return NotFound($"There is no product with Serial Number {serialNumber}");
+                return NotFound($"There is no product with ID {productId}");
             }
             // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
             catch (Exception ex)
@@ -204,8 +220,23 @@ namespace DoxmandAPI.Controllers
             return Ok(token);
         }
 
+        [HttpGet("{id}/plans")]
+        public ActionResult<IEnumerable<Plan>> GetPlansByUser(string id)
+        {
+            // Felhasználó megkeresése
+            var user = _repo.GetUserById(id);
+
+            // Ha nincs felhasználó a megadott ID-val, akkor 404-es hiba
+            if (user == null)
+            {
+                return NotFound($"There is no User with ID {id}");
+            }
+
+            return Ok(user.Plans);
+        }
+
         [HttpPut("{id}/plans/add")]
-        public ActionResult AddPlanToUser(string id, [FromBody] Dictionary<string, Coord> placedProducts)
+        public ActionResult AddPlanToUser(string id, [FromBody] PlanDTO planDto)
         {
             var user = _repo.GetUserById(id);
 
@@ -214,12 +245,12 @@ namespace DoxmandAPI.Controllers
                 return NotFound($"There is no User with ID {id}");
             }
 
-            if (placedProducts.Count == 0)
+            if (planDto.PlacedProducts.Count == 0)
             {
                 return BadRequest("You have not placed any products");
             }
 
-            foreach (KeyValuePair<string, Coord> placedProduct in placedProducts)
+            foreach (KeyValuePair<string, Coord> placedProduct in planDto.PlacedProducts)
             {
                 var product = _repo.GetProductById(placedProduct.Key);
 
@@ -232,7 +263,7 @@ namespace DoxmandAPI.Controllers
             // Try-catch a FireBase miatt
             try
             {
-                var plan = _repo.AddPlanToFirebase(placedProducts);
+                var plan = _repo.AddPlanToFirebase(planDto);
 
                 _repo.AddPlanToUser(user, plan);
 

@@ -41,32 +41,6 @@ namespace DoxmandAPI.Controllers
             return Ok(product);
         }
 
-        [HttpGet("find")]
-        public ActionResult<Product> GetProductBySerialNumber(string serialNumber)
-        {
-            if (string.IsNullOrEmpty(serialNumber))
-            {
-                return BadRequest("Some parameters are missing");
-            }
-
-            var products = _repo.GetAllProducts();
-
-            if (products == null)
-            {
-                return NotFound("There are no Products");
-            }
-
-            foreach (var product in products)
-            {
-                if (product.SerialNumber.Equals(serialNumber))
-                {
-                    return Ok(product);
-                }
-            }
-
-            return NotFound($"There is no Product with Serial Number {serialNumber}");
-        }
-
         [HttpPut("{id}")]
         public ActionResult EditProduct(Product product)
         {
@@ -114,7 +88,7 @@ namespace DoxmandAPI.Controllers
         [HttpPost("new")]
         public ActionResult<Product> AddNewProduct(ProductDTO productDto)
         {
-            if (string.IsNullOrEmpty(productDto.Name) || string.IsNullOrEmpty(productDto.SerialNumber))
+            if (string.IsNullOrEmpty(productDto.Name))
             {
                 return BadRequest("Some parameters are missing");
             }
@@ -128,6 +102,25 @@ namespace DoxmandAPI.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
+        }
+
+        [HttpGet("basic")]
+        public ActionResult<IEnumerable<Product>> GetBasicProducts()
+        {
+            return Ok(_repo.GetBasicProducts());
+        }
+
+        [HttpGet("{id}/number")]
+        public ActionResult<int> NumberOfProductionInPlans(string id)
+        {
+            var product = _repo.GetProductById(id);
+
+            if (product == null)
+            {
+                return NotFound("");
+            }
+
+            return Ok(_repo.NumberOfProductInPlans(id));
         }
     }
 }

@@ -11,5 +11,7 @@ namespace DoxmandAPI.Repos
         Product EditProduct(Product product);
         void DeleteProductById(string productId);
         Product AddProductToFirebase(ProductDTO productDto);
+        IEnumerable<Product> GetBasicProducts();
+        int NumberOfProductInPlans(string productId);
     }
 }

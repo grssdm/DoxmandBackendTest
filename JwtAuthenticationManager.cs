@@ -43,7 +43,7 @@ namespace DoxmandAPI
                 Subject = new ClaimsIdentity(new []
                 {
                     new Claim("Email", user.Email),
-                    new Claim("Name", user.Name),
+                    new Claim("Username", user.Username),
                     new Claim("User_ID", user.User_ID)
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),

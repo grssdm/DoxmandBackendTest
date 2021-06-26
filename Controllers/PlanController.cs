@@ -87,5 +87,25 @@ namespace DoxmandBackend.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("find/{id}")]
+        public ActionResult<string> FindPlanNameByProduct(string id)
+        {
+            var product = _repo.GetProductById(id);
+
+            if (product == null)
+            {
+                return NotFound($"There is no Product with ID {id}");
+            }
+
+            var name = _repo.FindPlanNameByProduct(id);
+
+            if (name == null)
+            {
+                return NotFound($"There is no Plan that contains the Product with ID {id}");
+            }
+
+            return Ok(name);
+        }
     }
 }
