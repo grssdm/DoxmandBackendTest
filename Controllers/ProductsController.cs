@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using DoxmandAPI.DTOs;
-using DoxmandAPI.Models;
-using DoxmandAPI.Repos;
+using DoxmandBackend.DTOs;
+using DoxmandBackend.Models;
+using DoxmandBackend.Repos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DoxmandAPI.Controllers
+namespace DoxmandBackend.Controllers
 {
     [Authorize]
     [Route("api/products")]
@@ -64,9 +64,9 @@ namespace DoxmandAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult DeleteProductById(string productId)
+        public ActionResult DeleteProductById(string id)
         {
-            var product = _repo.GetProductById(productId);
+            var product = _repo.GetProductById(id);
 
             if (product == null)
             {
@@ -75,7 +75,7 @@ namespace DoxmandAPI.Controllers
 
             try
             {
-                _repo.DeleteProductById(productId);
+                _repo.DeleteProductById(id);
 
                 return NoContent();
             }

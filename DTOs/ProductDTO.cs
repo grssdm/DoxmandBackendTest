@@ -1,7 +1,6 @@
-﻿using DoxmandAPI.Models;
-using static DoxmandAPI.Models.Product;
+﻿using static DoxmandBackend.Models.Product;
 
-namespace DoxmandAPI.DTOs
+namespace DoxmandBackend.DTOs
 {
     public class ProductDTO
     {
@@ -10,5 +9,6 @@ namespace DoxmandAPI.DTOs
         public AlarmType Type { get; set; }
         public string PictureUrl { get; set; }
         public string SavedName { get; set; }
+        public long Room_ID { get; set; }
     }
 }

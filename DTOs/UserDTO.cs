@@ -1,4 +1,4 @@
-﻿namespace DoxmandAPI.DTOs
+﻿namespace DoxmandBackend.DTOs
 {
     public class UserDTO
     {

@@ -1,12 +1,9 @@
-﻿using DoxmandAPI.Models;
-using DoxmandAPI.Repos;
+﻿using DoxmandBackend.Models;
+using DoxmandBackend.Repos;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DoxmandBackend.Controllers
 {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DoxmandAPI.Models
+namespace DoxmandBackend.Models
 {
     public class User
     {

@@ -1,6 +1,6 @@
-﻿namespace DoxmandAPI.Models
+﻿namespace DoxmandBackend.DTOs
 {
-    public class UserCred
+    public class LoginDTO
     {
         public string Email { get; set; }
         public string Password { get; set; }

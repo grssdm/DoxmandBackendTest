@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using DoxmandAPI.DTOs;
-using DoxmandAPI.Models;
+﻿using DoxmandBackend.DTOs;
+using DoxmandBackend.Models;
+using System.Collections.Generic;
 
-namespace DoxmandAPI.Repos
+namespace DoxmandBackend.Repos
 {
     public interface IProductRepo
     {
@@ -11,6 +11,7 @@ namespace DoxmandAPI.Repos
         Product EditProduct(Product product);
         void DeleteProductById(string productId);
         Product AddProductToFirebase(ProductDTO productDto);
+        bool AddProductToUser(User user, Product product);
         IEnumerable<Product> GetBasicProducts();
         int NumberOfProductInPlans(string productId);
     }

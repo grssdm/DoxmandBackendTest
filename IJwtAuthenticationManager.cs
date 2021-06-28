@@ -1,4 +1,4 @@
-﻿namespace DoxmandAPI
+﻿namespace DoxmandBackend
 {
     public interface IJwtAuthenticationManager
     {

@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using DoxmandAPI.Repos;
+using DoxmandBackend.Repos;
 using DoxmandBackend.Common;
 using Microsoft.IdentityModel.Tokens;
 
-namespace DoxmandAPI
+namespace DoxmandBackend
 {
     public class JwtAuthenticationManager : IJwtAuthenticationManager
     {

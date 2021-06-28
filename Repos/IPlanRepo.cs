@@ -1,10 +1,6 @@
-﻿using DoxmandAPI.Models;
-using DoxmandBackend.DTOs;
+﻿using DoxmandBackend.DTOs;
 using DoxmandBackend.Models;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DoxmandBackend.Repos
 {
@@ -12,8 +8,8 @@ namespace DoxmandBackend.Repos
     {
         IEnumerable<Plan> GetAllPlans();
         Plan GetPlanById(string planId);
-        User AddPlanToUser(User user, Plan plan);
         Plan AddPlanToFirebase(PlanDTO planDto);
+        bool AddPlanToUser(User user, Plan plan);
         Plan EditPlan(Plan plan);
         void DeletePlanById(string planId);
         string FindPlanNameByProduct(string productId);

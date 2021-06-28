@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using DoxmandAPI.DTOs;
-using DoxmandAPI.Models;
+﻿using System.Collections.Generic;
 using DoxmandBackend.Common;
 using DoxmandBackend.DTOs;
 using DoxmandBackend.Models;
-using DoxmandBackend.Repos;
 using FireSharp;
 using FireSharp.Config;
 using FireSharp.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace DoxmandAPI.Repos
+namespace DoxmandBackend.Repos
 {
     public class DoxmandRepo : IUsersRepo, IProductRepo, IPlanRepo
     {
@@ -80,20 +75,56 @@ namespace DoxmandAPI.Repos
             return user;
         }
 
-        public User AddProductToUser(User user, Product product)
+        public User EditUser(User user)
         {
             _client = new FirebaseClient(_config);
-            
-            user.Products.Add(product);
 
             _client.Set($"Users/{user.User_ID}", user);
 
             return user;
         }
 
+        public bool AddProductToUser(User user, Product product)
+        {
+            _client = new FirebaseClient(_config);
+
+            bool conflict = false;
+
+            foreach (var userProduct in user.Products)
+            {
+                if (product.Room_ID == userProduct.Room_ID)
+                {
+                    product.Room_ID++;
+                    conflict = true;
+                }
+            }
+            
+            user.Products.Add(product);
+
+            _client.Set($"Users/{user.User_ID}", user);
+
+            return conflict;
+        }
+
         public void DeleteUser(User user)
         {
             _client = new FirebaseClient(_config);
+
+            if (user.Plans != null)
+            {
+                foreach (var plan in user.Plans)
+                {
+                    DeletePlanById(plan.Plan_ID);
+                }
+            }
+
+            if (user.Products != null)
+            {
+                foreach (var product in user.Products)
+                {
+                    DeleteProductById(product.Product_ID);
+                }
+            }
             
             _client.Delete($"Users/{user.User_ID}");
         }
@@ -152,6 +183,57 @@ namespace DoxmandAPI.Repos
         {
             _client = new FirebaseClient(_config);
 
+            var plans = GetAllPlans();
+
+            if (plans != null)
+            {
+                foreach (var plan in plans)
+                {
+                    int idx = -1;
+
+                    for (int i = 0; i < plan.PlacedProducts.Count; i++)
+                    {
+                        if (plan.PlacedProducts[i].Product.Product_ID == productId)
+                        {
+                            idx = i;
+                            break;
+                        }
+                    }
+
+                    if (idx != -1)
+                    {
+                        plan.PlacedProducts.RemoveAt(idx);
+                        EditPlan(plan);
+                    }
+                }
+            }
+
+            var users = GetAllUsers();
+
+            if (users != null)
+            {
+                foreach (var user in users)
+                {
+                    int idx = -1;
+
+                    for (int i = 0; i < user.Products.Count; i++)
+                    {
+                        if (user.Products[i].Product_ID == productId)
+                        {
+                            idx = i;
+                            break;
+                        }
+                    }
+
+                    if (idx != -1)
+                    {
+                        user.Products.RemoveAt(idx);
+                        EditUser(user);
+                        break;
+                    }
+                }
+            }
+
             _client.Delete($"Products/{productId}");
         }
 
@@ -159,7 +241,7 @@ namespace DoxmandAPI.Repos
         {
             _client = new FirebaseClient(_config);
 
-            Product product = new Product(productDto.Name, productDto.SpeakerNumber, productDto.Type, productDto.PictureUrl, productDto.SavedName);
+            Product product = new Product(productDto);
             
             var response = _client.Push("Products/", productDto);
             product.Product_ID = response.Result.name;
@@ -177,7 +259,7 @@ namespace DoxmandAPI.Repos
             foreach (string line in lines)
             {
                 string[] lineParts = line.Split('\t');
-                basicProducts.Add(new Product(lineParts[0], int.Parse(lineParts[1]), (Product.AlarmType)int.Parse(lineParts[2]), lineParts[3], ""));
+                basicProducts.Add(new Product(lineParts[0], int.Parse(lineParts[1]), (Product.AlarmType)int.Parse(lineParts[2]), lineParts[3], "", -1));
             }
 
             return basicProducts;
@@ -198,7 +280,7 @@ namespace DoxmandAPI.Repos
             {
                 foreach (var placedProduct in plan.PlacedProducts)
                 {
-                    if (placedProduct.Key == productId)
+                    if (placedProduct.Product.Product_ID == productId)
                     {
                         counter++;
                     }
@@ -210,22 +292,33 @@ namespace DoxmandAPI.Repos
         #endregion
 
         #region PLANS
-        public User AddPlanToUser(User user, Plan plan)
+        public bool AddPlanToUser(User user, Plan plan)
         {
             _client = new FirebaseClient(_config);
+
+            bool conflict = false;
+
+            foreach (var userPlan in user.Plans)
+            {
+                if (plan.Room_ID == userPlan.Room_ID)
+                {
+                    plan.Room_ID++;
+                    conflict = true;
+                }
+            }
 
             user.Plans.Add(plan);
 
             _client.Set($"Users/{user.User_ID}", user);
 
-            return user;
+            return conflict;
         }
 
         public Plan AddPlanToFirebase(PlanDTO planDto)
         {
             _client = new FirebaseClient(_config);
 
-            Plan plan = new Plan(planDto.PlacedProducts, planDto.Name);
+            Plan plan = new Plan(planDto);
 
             var response = _client.Push("Plans/", plan);
             plan.Plan_ID = response.Result.name;
@@ -304,7 +397,7 @@ namespace DoxmandAPI.Repos
             {
                 foreach (var placedProduct in plan.PlacedProducts)
                 {
-                    if (placedProduct.Key == productId)
+                    if (placedProduct.Product.Product_ID == productId)
                     {
                         planName = plan.Name;
                         break;

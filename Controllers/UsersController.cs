@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using DoxmandAPI.DTOs;
-using DoxmandAPI.Repos;
-using DoxmandAPI.Models;
+using DoxmandBackend.DTOs;
+using DoxmandBackend.Repos;
+using DoxmandBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DoxmandBackend.Models;
-using DoxmandBackend.DTOs;
 
-namespace DoxmandAPI.Controllers
+namespace DoxmandBackend.Controllers
 {
     [Authorize]
     [Route("api/users")]
@@ -109,10 +107,9 @@ namespace DoxmandAPI.Controllers
         }
 
         [HttpPut("{id}/products/add")]
-        public ActionResult<User> AddProductToUser(string id, string productId)
+        public ActionResult<User> AddProductToUser(string id, [FromBody] ProductDTO productDto)
         {
-            // Ha a gyártási szám üres vagy null, akkor 400-as hiba
-            if (string.IsNullOrEmpty(productId))
+            if (productDto == null)
             {
                 return BadRequest("Some parameters are missing");
             }
@@ -126,44 +123,55 @@ namespace DoxmandAPI.Controllers
                 // Ha nincs felhasználó a megadott ID-val, akkor 404-es hiba
                 if (user == null)
                 {
-                    return NotFound($"There is no user with ID {id}");
+                    return NotFound("NOT_FOUND_USER");
                 }
 
-                // Termék megkeresése
-                var products = _repo.GetAllProducts();
+                Product product = _repo.AddProductToFirebase(productDto);
 
-                // Ha nincsenek termékek az adatbázisban, akkor 404-es hiba
-                if (products == null)
-                {
-                    return NotFound("There are no products");
-                }
+                var conflict = _repo.AddProductToUser(user, product);
 
-                // A megtalált termékeken végigiterálunk
-                foreach (var product in products)
+                return conflict ? Ok("CONFLICT") : Ok("PRODUCT_ADDED");
+            }
+            // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPut("{id}/products/add/more")]
+        public ActionResult<User> AddProductsToUser(string id, [FromBody] List<ProductDTO> productDtos)
+        {
+            // Felhasználó megkeresése
+            var user = _repo.GetUserById(id);
+
+            // Ha nincs felhasználó a megadott ID-val, akkor 404-es hiba
+            if (user == null)
+            {
+                return NotFound("NOT_FOUND_USER");
+            }
+
+            if (productDtos.Count == 0)
+            {
+                return BadRequest("EMPTY_PRODUCT_ARRAY");
+            }
+
+            // Try-catch a FireBase miatt
+            try
+            {
+                bool conflict = false;
+
+                foreach (var productDto in productDtos)
                 {
-                    // Megvizsgáljuk a gyártási számot
-                    if (product.Product_ID.Equals(productId))
+                    Product product = _repo.AddProductToFirebase(productDto);
+                    var isConflict = _repo.AddProductToUser(user, product);
+                    if (isConflict)
                     {
-                        // Végig iterálunk a felhasználó termékein
-                        foreach (var userProduct in user.Products)
-                        {
-                            // Ha megtaláljuk közöttük a megadott gyártási számmal
-                            // rendelkező terméket, akkor 400-as hiba
-                            if (userProduct.Product_ID.Equals(productId))
-                            {
-                                return BadRequest($"User with ID {id} already contains product with ID {productId}");
-                            }
-                        }
-
-                        // Ellenkező esetben hozzáadjuk az adott felhasználóhoz
-                        _repo.AddProductToUser(user, product);
-                        // És 200-as státuszkóddal térünk vissza
-                        return Ok($"Product with ID {productId} has been successfully added to User with ID {id}");
+                        conflict = true;
                     }
                 }
 
-                // Ha nem találtuk meg a terméket a megadott gyártási számmal, akkor 404-es hiba
-                return NotFound($"There is no product with ID {productId}");
+                return conflict ? Ok("CONFLICT") : Ok("PRODUCTS_ADDED");
             }
             // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
             catch (Exception ex)
@@ -202,15 +210,15 @@ namespace DoxmandAPI.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public ActionResult Authenticate([FromBody] UserCred userCred)
+        public ActionResult Authenticate([FromBody] LoginDTO loginDto)
         {
             // Ha valamelyik attribútum üres vagy null, akkor 400-as hiba
-            if (string.IsNullOrEmpty(userCred.Email) || string.IsNullOrEmpty(userCred.Password))
+            if (string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
             {
                 return BadRequest("Some parameters are missing");
             }
 
-            var token = _jwtAuthenticationManager.Authenticate(userCred.Email, userCred.Password);
+            var token = _jwtAuthenticationManager.Authenticate(loginDto.Email, loginDto.Password);
             
             if (token == null)
             {
@@ -250,13 +258,16 @@ namespace DoxmandAPI.Controllers
                 return BadRequest("You have not placed any products");
             }
 
-            foreach (KeyValuePair<string, Coord> placedProduct in planDto.PlacedProducts)
+            foreach (var placedProduct in planDto.PlacedProducts)
             {
-                var product = _repo.GetProductById(placedProduct.Key);
-
-                if (product == null)
+                if (placedProduct.Product.Product_ID != "")
                 {
-                    return NotFound($"There is no Product with ID {placedProduct.Key}");
+                    var product = _repo.GetProductById(placedProduct.Product.Product_ID);
+
+                    if (product == null)
+                    {
+                        return NotFound($"There is no Product with ID {placedProduct.Product.Product_ID}");
+                    }
                 }
             }
 
@@ -268,6 +279,65 @@ namespace DoxmandAPI.Controllers
                 _repo.AddPlanToUser(user, plan);
 
                 return Ok($"Plan with ID {plan.Plan_ID} has been successfully added to User with ID {user.User_ID}");
+            }
+            // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPut("{id}/plans/add/more")]
+        public ActionResult AddPlansToUser(string id, [FromBody] List<PlanDTO> planDtos)
+        {
+            var user = _repo.GetUserById(id);
+
+            if (user == null)
+            {
+                return NotFound("NOT_FOUND_USER");
+            }
+
+            if (planDtos.Count == 0)
+            {
+                return BadRequest("EMPTY_PLAN_ARRAY");
+            }
+
+            foreach (var planDto in planDtos)
+            {
+                if (planDto.PlacedProducts.Count == 0)
+                {
+                    return BadRequest("NO_PLACED_PRODUCT");
+                }
+
+                foreach (var placedProduct in planDto.PlacedProducts)
+                {
+                    if (placedProduct.Product.Product_ID != "")
+                    {
+                        var product = _repo.GetProductById(placedProduct.Product.Product_ID);
+
+                        if (product == null)
+                        {
+                            return NotFound("NOT_FOUND_PRODUCT");
+                        }
+                    }
+                }
+            }
+
+            // Try-catch a FireBase miatt
+            try
+            {
+                bool conflict = false;
+                foreach (var planDto in planDtos)
+                {
+                    var plan = _repo.AddPlanToFirebase(planDto);
+                    var isConflict = _repo.AddPlanToUser(user, plan);
+                    if (isConflict)
+                    {
+                        conflict = true;
+                    }
+                }
+
+                return conflict ? Ok("CONFLICT") : Ok("PLANS_ADDED");
             }
             // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
             catch (Exception ex)
