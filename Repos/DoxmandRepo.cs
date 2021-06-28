@@ -252,8 +252,19 @@ namespace DoxmandBackend.Repos
 
         public IEnumerable<Product> GetBasicProducts()
         {
-            List<Product> basicProducts = new List<Product>();
+            List<Product> basicProducts = new List<Product> {
+                new Product("Doxmand Normal ultrahangos vadriasztó", 1, Product.AlarmType.Wild, "https://doxmand.hu/wp-content/uploads/2019/12/Normal.jpg", "", -1),
+                new Product("Doxmand Dual ultrahangos vadriasztó", 1, Product.AlarmType.Wild, "https://doxmand.hu/wp-content/uploads/2021/06/Dual.jpg", "", -1),
+                new Product("Doxmand VR4 ultrahangos vadriasztó", 4, Product.AlarmType.Wild, "https://doxmand.hu/wp-content/uploads/2021/06/Vr4.jpg", "", -1),
+                new Product("Doxmand VR8 ultrahangos vadriasztó", 8, Product.AlarmType.Wild, "https://doxmand.hu/wp-content/uploads/2020/01/VR8.jpg", "", -1),
+                new Product("Doxmand Nomus ultrahangos rágcsálóriasztó", 1, Product.AlarmType.Rodent, "https://doxmand.hu/wp-content/uploads/2021/06/Nomus.jpg", "", -1),
+                new Product("Doxmand Nomus Plus ultrahangos rágcsálóriasztó", 1, Product.AlarmType.Rodent, "https://doxmand.hu/wp-content/uploads/2021/06/Nomus-Plus.jpg", "", -1),
+                new Product("Doxmand Nomus 360 ultrahangos rágcsálóriasztó", 1, Product.AlarmType.Rodent, "https://doxmand.hu/wp-content/uploads/2021/06/Nomus-Plus-360psd.jpg", "", -1),
+                new Product("Doxmand SR2 madárriasztó", 1, Product.AlarmType.Starling, "https://doxmand.hu/wp-content/uploads/2021/06/SR2-1.jpg", "", -1),
+                new Product("Doxmand SR4 madárriasztó", 4, Product.AlarmType.Starling, "https://doxmand.hu/wp-content/uploads/2021/06/SR4-1.jpg", "", -1),
+            };
 
+            /*
             string[] lines = System.IO.File.ReadAllLines(@"BasicProducts.txt");
 
             foreach (string line in lines)
@@ -261,6 +272,7 @@ namespace DoxmandBackend.Repos
                 string[] lineParts = line.Split('\t');
                 basicProducts.Add(new Product(lineParts[0], int.Parse(lineParts[1]), (Product.AlarmType)int.Parse(lineParts[2]), lineParts[3], "", -1));
             }
+            */
 
             return basicProducts;
         }
