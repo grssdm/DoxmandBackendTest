@@ -411,5 +411,75 @@ namespace DoxmandBackend.Controllers
             // 204-es státuszkóddal való visszatérés
             return NoContent();
         }
+
+        [HttpDelete("{id}/products/more")]
+        public ActionResult DeleteUserProducts(string id, List<string> productIds)
+        {
+            var user = _repo.GetUserById(id);
+
+            if (user == null)
+            {
+                return NotFound("NOT_FOUND_USER");
+            }
+
+            // Try-catch a FireBase miatt
+            try
+            {
+                foreach (var productId in productIds)
+                {
+                    var product = _repo.GetProductById(productId);
+
+                    if (product == null)
+                    {
+                        return NotFound("NOT_FOUND_PRODUCT");
+                    }
+
+                    _repo.DeleteProductFromUser(user, productId);
+                }
+            }
+            // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+            // 204-es státuszkóddal való visszatérés
+            return NoContent();
+        }
+
+        [HttpDelete("{id}/plans/more")]
+        public ActionResult DeleteUserPlans(string id, List<string> planIds)
+        {
+            var user = _repo.GetUserById(id);
+
+            if (user == null)
+            {
+                return NotFound("NOT_FOUND_USER");
+            }
+
+            // Try-catch a FireBase miatt
+            try
+            {
+                foreach (var planId in planIds)
+                {
+                    var plan = _repo.GetPlanById(planId);
+
+                    if (plan == null)
+                    {
+                        return NotFound("NOT_FOUND_PRODUCT");
+                    }
+
+                    _repo.DeletePlanFromUser(user, planId);
+                }
+            }
+            // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+            // 204-es státuszkóddal való visszatérés
+            return NoContent();
+        }
     }
 }
