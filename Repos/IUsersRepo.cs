@@ -11,5 +11,7 @@ namespace DoxmandBackend.Repos
         User AddUserToFirebase(UserDTO userDto);
         User EditUser(User user);
         void DeleteUser(User user);
+        void DeleteProductFromUser(User user, string productId);
+        void DeletePlanFromUser(User user, string planId);
     }
 }

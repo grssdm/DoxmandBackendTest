@@ -128,6 +128,82 @@ namespace DoxmandBackend.Repos
             
             _client.Delete($"Users/{user.User_ID}");
         }
+
+        public void DeleteProductFromUser(User user, string productId)
+        {
+            _client = new FirebaseClient(_config);
+
+            int idx;
+
+            if (user.Plans != null)
+            {
+                foreach (var plan in user.Plans)
+                {
+                    idx = -1;
+
+                    for (int i = 0; i < plan.PlacedProducts.Count; i++)
+                    {
+                        if (plan.PlacedProducts[i].Product.Product_ID == productId)
+                        {
+                            idx = i;
+                            break;
+                        }
+                    }
+
+                    if (idx != -1)
+                    {
+                        plan.PlacedProducts.RemoveAt(idx);
+                        EditPlan(plan);
+                    }
+                }
+            }
+
+            idx = -1;
+
+            for (int i = 0; i < user.Products.Count; i++)
+            {
+                if (user.Products[i].Product_ID == productId)
+                {
+                    idx = i;
+                    break;
+                }
+            }
+
+            if (idx != -1)
+            {
+                user.Products.RemoveAt(idx);
+                EditUser(user);
+            }
+
+            _client.Delete($"Products/{productId}");
+        }
+
+        public void DeletePlanFromUser(User user, string planId)
+        {
+            _client = new FirebaseClient(_config);
+
+            int idx = -1;
+
+            if (user.Plans != null)
+            {
+                for (int i = 0; i < user.Plans.Count; i++)
+                {
+                    if (user.Plans[i].Plan_ID == planId)
+                    {
+                        idx = i;
+                        break;
+                    }
+                }
+
+                if (idx != -1)
+                {
+                    user.Plans.RemoveAt(idx);
+                    EditUser(user);
+                }
+            }
+
+            _client.Delete($"Plans/{planId}");
+        }
         #endregion
 
         #region PRODUCTS

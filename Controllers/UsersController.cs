@@ -345,5 +345,71 @@ namespace DoxmandBackend.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpDelete("{id}/products/{productId}")]
+        public ActionResult DeleteUserProduct(string id, string productId)
+        {
+            var user = _repo.GetUserById(id);
+
+            if (user == null)
+            {
+                return NotFound("NOT_FOUND_USER");
+            }
+
+            var product = _repo.GetProductById(productId);
+
+            if (product == null)
+            {
+                return NotFound("NOT_FOUND_PRODUCT");
+            }
+
+            // Try-catch a FireBase miatt
+            try
+            {
+
+                _repo.DeleteProductFromUser(user, productId);
+            }
+            // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+            // 204-es státuszkóddal való visszatérés
+            return NoContent();
+        }
+
+        [HttpDelete("{id}/plans/{planId}")]
+        public ActionResult DeleteUserPlan(string id, string planId)
+        {
+            var user = _repo.GetUserById(id);
+
+            if (user == null)
+            {
+                return NotFound("NOT_FOUND_USER");
+            }
+
+            var plan = _repo.GetPlanById(planId);
+
+            if (plan == null)
+            {
+                return NotFound("NOT_FOUND_PLAN");
+            }
+
+            // Try-catch a FireBase miatt
+            try
+            {
+
+                _repo.DeletePlanFromUser(user, planId);
+            }
+            // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+            // 204-es státuszkóddal való visszatérés
+            return NoContent();
+        }
     }
 }
