@@ -14,5 +14,6 @@ namespace DoxmandBackend.Repos
         bool AddProductToUser(User user, Product product);
         IEnumerable<Product> GetBasicProducts();
         int NumberOfProductInPlans(string productId);
+        Product CheckUserProductsForName(User user, string name);
     }
 }

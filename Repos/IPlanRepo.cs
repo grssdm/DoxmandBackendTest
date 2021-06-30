@@ -13,5 +13,6 @@ namespace DoxmandBackend.Repos
         Plan EditPlan(Plan plan);
         void DeletePlanById(string planId);
         string FindPlanNameByProduct(string productId);
+        Plan CheckUserPlansForName(User user, string name);
     }
 }

@@ -126,6 +126,13 @@ namespace DoxmandBackend.Controllers
                     return NotFound("NOT_FOUND_USER");
                 }
 
+                var _product = _repo.CheckUserProductsForName(user, productDto.SavedName);
+
+                if (_product != null)
+                {
+                    return BadRequest("PRODUCT_WITH_NAME_ALREADY_EXISTS");
+                }
+
                 Product product = _repo.AddProductToFirebase(productDto);
 
                 var conflict = _repo.AddProductToUser(user, product);
@@ -163,6 +170,13 @@ namespace DoxmandBackend.Controllers
 
                 foreach (var productDto in productDtos)
                 {
+                    var _product = _repo.CheckUserProductsForName(user, productDto.SavedName);
+
+                    if (_product != null)
+                    {
+                        return BadRequest("PRODUCT_WITH_NAME_ALREADY_EXISTS");
+                    }
+
                     Product product = _repo.AddProductToFirebase(productDto);
                     var isConflict = _repo.AddProductToUser(user, product);
                     if (isConflict)
@@ -258,6 +272,13 @@ namespace DoxmandBackend.Controllers
                 return BadRequest("You have not placed any products");
             }
 
+            var _plan = _repo.CheckUserPlansForName(user, planDto.Name);
+
+            if (_plan != null)
+            {
+                return BadRequest("PLAN_WITH_NAME_ALREADY_EXISTS");
+            }
+
             foreach (var placedProduct in planDto.PlacedProducts)
             {
                 if (placedProduct.Product.Product_ID != "")
@@ -307,6 +328,13 @@ namespace DoxmandBackend.Controllers
                 if (planDto.PlacedProducts.Count == 0)
                 {
                     return BadRequest("NO_PLACED_PRODUCT");
+                }
+
+                var _plan = _repo.CheckUserPlansForName(user, planDto.Name);
+
+                if (_plan != null)
+                {
+                    return BadRequest("PLAN_WITH_NAME_ALREADY_EXISTS");
                 }
 
                 foreach (var placedProduct in planDto.PlacedProducts)

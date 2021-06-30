@@ -5,6 +5,13 @@ namespace DoxmandBackend.Models
 {
     public class Plan
     {
+        public Plan()
+        {
+            PlacedProducts = null;
+            Name = "";
+            Room_ID = -1;
+        }
+
         public Plan(List<PlanProduct> placedProducts, string name, long roomId)
         {
             PlacedProducts = placedProducts;

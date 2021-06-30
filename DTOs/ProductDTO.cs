@@ -10,5 +10,6 @@ namespace DoxmandBackend.DTOs
         public string PictureUrl { get; set; }
         public string SavedName { get; set; }
         public long Room_ID { get; set; }
+        public string MapIconUrl { get; set; }
     }
 }

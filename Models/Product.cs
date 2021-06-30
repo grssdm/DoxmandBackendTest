@@ -13,9 +13,10 @@ namespace DoxmandBackend.Models
             PictureUrl = "";
             SavedName = "";
             Room_ID = -1;
+            MapIconUrl = "";
         }
 
-        public Product(string name, int speakerNumber, AlarmType type, string pictureUrl, string savedName, long roomId)
+        public Product(string name, int speakerNumber, AlarmType type, string pictureUrl, string savedName, long roomId, string mapIconUrl)
         {
             Name = name;
             SpeakerNumber = speakerNumber;
@@ -23,6 +24,7 @@ namespace DoxmandBackend.Models
             PictureUrl = pictureUrl;
             SavedName = savedName;
             Room_ID = roomId;
+            MapIconUrl = mapIconUrl;
         }
 
         public Product(ProductDTO productDto)
@@ -33,6 +35,7 @@ namespace DoxmandBackend.Models
             PictureUrl = productDto.PictureUrl;
             SavedName = productDto.SavedName;
             Room_ID = productDto.Room_ID;
+            MapIconUrl = productDto.MapIconUrl;
         }
 
         public enum AlarmType
@@ -49,5 +52,6 @@ namespace DoxmandBackend.Models
         public string PictureUrl { get; set; }
         public string SavedName { get; set; }
         public long Room_ID { get; set; }
+        public string MapIconUrl { get; set; }
     }
 }
