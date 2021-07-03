@@ -62,6 +62,7 @@ namespace DoxmandBackend.Repos
             return user;
         }
         
+        /*
         public User AddUserToFirebase(UserDTO userDto)
         {
             _client = new FirebaseClient(_config);
@@ -74,6 +75,7 @@ namespace DoxmandBackend.Repos
 
             return user;
         }
+        */
 
         public User EditUser(User user)
         {

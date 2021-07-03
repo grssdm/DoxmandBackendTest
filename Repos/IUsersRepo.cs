@@ -8,7 +8,7 @@ namespace DoxmandBackend.Repos
     {
         IEnumerable<User> GetAllUsers();
         User GetUserById(string id);
-        User AddUserToFirebase(UserDTO userDto);
+        // User AddUserToFirebase(UserDTO userDto);
         User EditUser(User user);
         void DeleteUser(User user);
         void DeleteProductFromUser(User user, string productId);

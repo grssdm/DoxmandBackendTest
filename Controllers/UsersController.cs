@@ -5,6 +5,8 @@ using DoxmandBackend.Repos;
 using DoxmandBackend.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using FirebaseAdmin.Auth;
 
 namespace DoxmandBackend.Controllers
 {
@@ -15,12 +17,16 @@ namespace DoxmandBackend.Controllers
     {
         // A Repo-ban vannak az adatbázishoz köthető függvények
         private readonly DoxmandRepo _repo = new DoxmandRepo();
+        private readonly List<int> _badRequestErrorCodes = new List<int>() { 0, 1, 2, 6, 7, 8, 10 };
+        private readonly List<int> _unauthorizedErrorCodes = new List<int>() { 3, 4 };
+        private readonly List<int> _internalServerErrorCodes = new List<int>() { 9, 11, 12, 13, 14, 15 };
+        /*
         private readonly IJwtAuthenticationManager _jwtAuthenticationManager;
 
         public UsersController(IJwtAuthenticationManager jwtAuthenticationManager)
         {
             _jwtAuthenticationManager = jwtAuthenticationManager;
-        }
+        }*/
         
         [HttpGet]
         public ActionResult<IEnumerable<User>> GetAllUsers()
@@ -38,6 +44,7 @@ namespace DoxmandBackend.Controllers
             return Ok(users);
         }
 
+        /*
         [HttpGet("{id}")]
         public ActionResult<User> GetUserById(string id)
         {
@@ -53,7 +60,32 @@ namespace DoxmandBackend.Controllers
             // Visszatérünk a megtalált felhasználóval
             return Ok(user);
         }
+        */
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetUserById(string id)
+        {
+            var user = _repo.GetUserById(id);
+
+            if (user == null)
+            {
+                try
+                {
+                    var authUser = await FirebaseAuth.DefaultInstance.GetUserAsync(id);
+
+                    User newUser = new User(id);
+
+                    return Ok(_repo.EditUser(newUser));
+                } catch (Exception ex)
+                {
+                    return Problem(ex.Message);
+                }
+            }
+
+            return Ok(user);
+        }
+
+        /*
         [AllowAnonymous]
         [HttpPost("register")]
         public ActionResult<User> AddNewUser(UserDTO userDto)
@@ -90,6 +122,7 @@ namespace DoxmandBackend.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+        */
 
         [HttpGet("{id}/products")]
         public ActionResult<IEnumerable<Product>> GetProductsByUser(string id)
@@ -194,6 +227,7 @@ namespace DoxmandBackend.Controllers
             }
         }
 
+        /*
         [HttpDelete("{id}")]
         public ActionResult<User> DeleteUser(string id)
         {
@@ -221,7 +255,44 @@ namespace DoxmandBackend.Controllers
             // 204-es státuszkóddal való visszatérés
             return NoContent();
         }
+        */
 
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteUser(string id)
+        {
+            try
+            {
+                var authUser = await FirebaseAuth.DefaultInstance.GetUserAsync(id);
+
+                var user = _repo.GetUserById(id);
+
+                if (user != null)
+                {
+                    _repo.DeleteUser(user);
+                }
+
+                _ = FirebaseAuth.DefaultInstance.DeleteUserAsync(id);
+
+                return NoContent();
+            }
+            catch (FirebaseAuthException ex)
+            {
+                if (_internalServerErrorCodes.Contains((int) ex.ErrorCode))
+                {
+                    return StatusCode(500, ex.Message);
+                } else if (_badRequestErrorCodes.Contains((int)ex.ErrorCode))
+                {
+                    return StatusCode(400, ex.Message);
+                } else if (_unauthorizedErrorCodes.Contains((int)ex.ErrorCode))
+                {
+                    return StatusCode(401, ex.Message);
+                }
+
+                return StatusCode(404, ex.Message);
+            }
+        }
+
+        /*
         [AllowAnonymous]
         [HttpPost("authenticate")]
         public ActionResult Authenticate([FromBody] LoginDTO loginDto)
@@ -241,6 +312,7 @@ namespace DoxmandBackend.Controllers
 
             return Ok(token);
         }
+        */
 
         [HttpGet("{id}/plans")]
         public ActionResult<IEnumerable<Plan>> GetPlansByUser(string id)

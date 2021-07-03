@@ -74,3 +74,13 @@ D:\dev\szakmai-gyak\backend\obj\Debug\netcoreapp3.1\DoxmandBackend.csproj.CopyCo
 D:\dev\szakmai-gyak\backend\obj\Debug\netcoreapp3.1\DoxmandBackend.dll
 D:\dev\szakmai-gyak\backend\obj\Debug\netcoreapp3.1\DoxmandBackend.pdb
 D:\dev\szakmai-gyak\backend\obj\Debug\netcoreapp3.1\DoxmandBackend.genruntimeconfig.cache
+D:\dev\szakmai-gyak\backend\bin\Debug\netcoreapp3.1\asp-testing-f6b86-firebase-adminsdk-zi9zn-e39c12a748.json
+D:\dev\szakmai-gyak\backend\bin\Debug\netcoreapp3.1\FirebaseAdmin.dll
+D:\dev\szakmai-gyak\backend\bin\Debug\netcoreapp3.1\Google.Api.Gax.dll
+D:\dev\szakmai-gyak\backend\bin\Debug\netcoreapp3.1\Google.Api.Gax.Rest.dll
+D:\dev\szakmai-gyak\backend\bin\Debug\netcoreapp3.1\Google.Apis.dll
+D:\dev\szakmai-gyak\backend\bin\Debug\netcoreapp3.1\Google.Apis.Auth.PlatformServices.dll
+D:\dev\szakmai-gyak\backend\bin\Debug\netcoreapp3.1\Google.Apis.Auth.dll
+D:\dev\szakmai-gyak\backend\bin\Debug\netcoreapp3.1\Google.Apis.Core.dll
+D:\dev\szakmai-gyak\backend\bin\Debug\netcoreapp3.1\Microsoft.Bcl.AsyncInterfaces.dll
+D:\dev\szakmai-gyak\backend\bin\Debug\netcoreapp3.1\System.Collections.Immutable.dll

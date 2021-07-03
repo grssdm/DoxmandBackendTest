@@ -19,6 +19,7 @@ namespace DoxmandBackend
             _key = key;
         }
         
+        /*
         public string Authenticate(string email, string password)
         {
             var users = _repo.GetAllUsers();
@@ -54,5 +55,6 @@ namespace DoxmandBackend
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+        */
     }
 }
