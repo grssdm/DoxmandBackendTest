@@ -125,7 +125,7 @@ namespace DoxmandBackend.Controllers
         */
 
         [HttpGet("{id}/products")]
-        public ActionResult<IEnumerable<Product>> GetProductsByUser(string id)
+        public async Task<ActionResult<IEnumerable<Product>>> GetProductsByUser(string id)
         {
             // Felhasználó megkeresése
             var user = _repo.GetUserById(id);
@@ -133,7 +133,20 @@ namespace DoxmandBackend.Controllers
             // Ha nincs felhasználó a megadott ID-val, akkor 404-es hiba
             if (user == null)
             {
-                return NotFound($"There is no User with ID {id}");
+                try
+                {
+                    var authUser = await FirebaseAuth.DefaultInstance.GetUserAsync(id);
+
+                    User newUser = new User(id);
+
+                    _repo.EditUser(newUser);
+
+                    return (newUser.Products);
+                }
+                catch (Exception ex)
+                {
+                    return Problem(ex.Message);
+                }
             }
 
             return Ok(user.Products);
@@ -315,7 +328,7 @@ namespace DoxmandBackend.Controllers
         */
 
         [HttpGet("{id}/plans")]
-        public ActionResult<IEnumerable<Plan>> GetPlansByUser(string id)
+        public async Task<ActionResult<IEnumerable<Plan>>> GetPlansByUser(string id)
         {
             // Felhasználó megkeresése
             var user = _repo.GetUserById(id);
@@ -323,7 +336,20 @@ namespace DoxmandBackend.Controllers
             // Ha nincs felhasználó a megadott ID-val, akkor 404-es hiba
             if (user == null)
             {
-                return NotFound($"There is no User with ID {id}");
+                try
+                {
+                    var authUser = await FirebaseAuth.DefaultInstance.GetUserAsync(id);
+
+                    User newUser = new User(id);
+
+                    _repo.EditUser(newUser);
+
+                    return (newUser.Plans);
+                }
+                catch (Exception ex)
+                {
+                    return Problem(ex.Message);
+                }
             }
 
             return Ok(user.Plans);
