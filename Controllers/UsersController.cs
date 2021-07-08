@@ -472,6 +472,77 @@ namespace DoxmandBackend.Controllers
             }
         }
 
+        [HttpPut("{id}/plans")]
+        public ActionResult EditUserPlans(string id, List<Plan> plans)
+        {
+            var user = _repo.GetUserById(id);
+
+            if (user == null)
+            {
+                return NotFound("NOT_FOUND_USER");
+            }
+
+            if (plans.Count == 0)
+            {
+                // Try-catch a FireBase miatt
+                try
+                {
+                    user.Plans = plans;
+                    _repo.EditUser(user);
+
+                    return Ok("PLANS_EDITED");
+                }
+                // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
+                catch (Exception ex)
+                {
+                    return StatusCode(500, ex.Message);
+                }
+            }
+
+            List<Plan> newList = new List<Plan>();
+            List<PlanDTO> planDtos = new List<PlanDTO>();
+
+            foreach (var plan in plans)
+            {
+                if (plan.Plan_ID != null)
+                {
+                    newList.Add(plan);
+                } else
+                {
+                    planDtos.Add(new PlanDTO
+                    {
+                        PlacedProducts = plan.PlacedProducts,
+                        Name = plan.Name,
+                        Room_ID = plan.Room_ID
+                    });
+                }
+            }
+
+            // Try-catch a FireBase miatt
+            try
+            {
+                user.Plans = newList;
+                var newUser = _repo.EditUser(user);
+                bool conflict = false;
+                foreach (var planDto in planDtos)
+                {
+                    var plan = _repo.AddPlanToFirebase(planDto);
+                    var isConflict = _repo.AddPlanToUser(user, plan);
+                    if (isConflict)
+                    {
+                        conflict = true;
+                    }
+                }
+
+                return conflict ? Ok("CONFLICT") : Ok("PLANS_EDITED");
+            }
+            // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpDelete("{id}/products/{productId}")]
         public ActionResult DeleteUserProduct(string id, string productId)
         {
