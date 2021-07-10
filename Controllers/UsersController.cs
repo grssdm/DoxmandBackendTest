@@ -20,13 +20,6 @@ namespace DoxmandBackend.Controllers
         private readonly List<int> _badRequestErrorCodes = new List<int>() { 0, 1, 2, 6, 7, 8, 10 };
         private readonly List<int> _unauthorizedErrorCodes = new List<int>() { 3, 4 };
         private readonly List<int> _internalServerErrorCodes = new List<int>() { 9, 11, 12, 13, 14, 15 };
-        /*
-        private readonly IJwtAuthenticationManager _jwtAuthenticationManager;
-
-        public UsersController(IJwtAuthenticationManager jwtAuthenticationManager)
-        {
-            _jwtAuthenticationManager = jwtAuthenticationManager;
-        }*/
         
         [HttpGet]
         public ActionResult<IEnumerable<User>> GetAllUsers()
@@ -43,24 +36,6 @@ namespace DoxmandBackend.Controllers
             // Visszatérünk a felhasználókkal, 200-as státuszkóddal
             return Ok(users);
         }
-
-        /*
-        [HttpGet("{id}")]
-        public ActionResult<User> GetUserById(string id)
-        {
-            // Felhasználó megkeresése a megadott ID alapján
-            var user = _repo.GetUserById(id);
-
-            // Ha null, akkor nincs ilyen felhasználó, 404-es hiba
-            if (user == null)
-            {
-                return NotFound($"There is no user with ID {id}");
-            }
-
-            // Visszatérünk a megtalált felhasználóval
-            return Ok(user);
-        }
-        */
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetUserById(string id)
@@ -84,45 +59,6 @@ namespace DoxmandBackend.Controllers
 
             return Ok(user);
         }
-
-        /*
-        [AllowAnonymous]
-        [HttpPost("register")]
-        public ActionResult<User> AddNewUser(UserDTO userDto)
-        {
-            // Ha valamelyik attribútum üres vagy null, akkor 400-as hiba
-            if (string.IsNullOrEmpty(userDto.Email) || string.IsNullOrEmpty(userDto.Password) || string.IsNullOrEmpty(userDto.Username))
-            {
-                return BadRequest("Some parameters are missing");
-            }
-
-            // A meglévő felhasználók vizsgálata
-            var users = _repo.GetAllUsers();
-            foreach (var user in users)
-            {
-                // Ha létezik már ilyen email címmel rendelkező felhasználó, akkor 400-as hiba
-                if (user.Email.Equals(userDto.Email))
-                {
-                    return BadRequest($"User with Email {userDto.Email} already registered");
-                }
-            }
-            
-            // Try-catch a FireBase miatt
-            try
-            {
-                // Létrehozzuk a felhasználót a megadott adatokkal
-                _repo.AddUserToFirebase(userDto);
-                // és visszatérünk a tokennel, valamint 200-as státuszkóddal
-                var token = _jwtAuthenticationManager.Authenticate(userDto.Email, userDto.Password);
-                return Ok(token);
-            }
-            // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-        */
 
         [HttpGet("{id}/products")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProductsByUser(string id)
@@ -212,7 +148,7 @@ namespace DoxmandBackend.Controllers
             // Try-catch a FireBase miatt
             try
             {
-                bool conflict = false;
+                var newProducts = new List<Product>();
 
                 foreach (var productDto in productDtos)
                 {
@@ -224,14 +160,11 @@ namespace DoxmandBackend.Controllers
                     }
 
                     Product product = _repo.AddProductToFirebase(productDto);
-                    var isConflict = _repo.AddProductToUser(user, product);
-                    if (isConflict)
-                    {
-                        conflict = true;
-                    }
+                    _repo.AddProductToUser(user, product);
+                    newProducts.Add(product);
                 }
 
-                return conflict ? Ok("CONFLICT") : Ok("PRODUCTS_ADDED");
+                return Ok(newProducts);
             }
             // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
             catch (Exception ex)
@@ -239,36 +172,6 @@ namespace DoxmandBackend.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-
-        /*
-        [HttpDelete("{id}")]
-        public ActionResult<User> DeleteUser(string id)
-        {
-            // Felhasználó megkeresése
-            var user = _repo.GetUserById(id);
-
-            // Ha nincs felhasználó a megadott ID-val, akkor 404-es hiba
-            if (user == null)
-            {
-                return NotFound($"There is no User with ID {id}");
-            }
-            
-            // Try-catch a FireBase miatt
-            try
-            {
-                // Felhasználó törlése
-                _repo.DeleteUser(user);
-            }
-            // Ha valami hiba történt a FireBase területén, akkor 500-as hiba
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-            
-            // 204-es státuszkóddal való visszatérés
-            return NoContent();
-        }
-        */
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteUser(string id)
@@ -304,28 +207,6 @@ namespace DoxmandBackend.Controllers
                 return StatusCode(404, ex.Message);
             }
         }
-
-        /*
-        [AllowAnonymous]
-        [HttpPost("authenticate")]
-        public ActionResult Authenticate([FromBody] LoginDTO loginDto)
-        {
-            // Ha valamelyik attribútum üres vagy null, akkor 400-as hiba
-            if (string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
-            {
-                return BadRequest("Some parameters are missing");
-            }
-
-            var token = _jwtAuthenticationManager.Authenticate(loginDto.Email, loginDto.Password);
-            
-            if (token == null)
-            {
-                return Unauthorized();
-            }
-
-            return Ok(token);
-        }
-        */
 
         [HttpGet("{id}/plans")]
         public async Task<ActionResult<IEnumerable<Plan>>> GetPlansByUser(string id)
