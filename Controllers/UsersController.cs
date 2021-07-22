@@ -385,7 +385,7 @@ namespace DoxmandBackend.Controllers
 
             foreach (var plan in plans)
             {
-                if (plan.Plan_ID != null)
+                if (!string.IsNullOrEmpty(plan.Plan_ID))
                 {
                     newList.Add(plan);
                 } else
