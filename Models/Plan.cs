@@ -33,6 +33,7 @@ namespace DoxmandBackend.Models
         {
             public Product Product { get; set; }
             public Coord Location { get; set; }
+            public int Rotation { get; set; }
         }
         public class Coord
         {
